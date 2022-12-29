@@ -1,40 +1,80 @@
 /* eslint-disable */
-import * as THREE from 'three'
 import * as React from 'react'
-import { useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
+import { Suspense, useRef, useMemo } from 'react'
+import { Canvas, useFrame,  } from '@react-three/fiber'
+import { Sky, PointerLockControls, KeyboardControls } from "@react-three/drei"
+import { useGLTF, useFBO, Stage, Effects } from '@react-three/drei'
+import { CuboidCollider, RigidBody, Debug } from "@react-three/rapier"
 
-function Box(props: JSX.IntrinsicElements['mesh']) {
-  // This reference will give us direct access to the THREE.Mesh object
-  const ref = useRef<THREE.Mesh>(null!)
-  // Hold state for hovered and clicked events
-  const [hovered, hover] = useState(false)
-  const [clicked, click] = useState(false)
-  // Rotate mesh every frame, this is outside of React without overhead
-  useFrame((state, delta) => (ref.current.rotation.x += 0.01))
+import { Physics } from "@react-three/rapier"
+import Ground from './components/Ground/Ground'
+import Player from './components/Player/Player'
 
-  return (
-    <mesh
-      {...props}
-      ref={ref}
-      scale={clicked ? 1.5 : 1}
-      onClick={(event) => click(!clicked)}
-      onPointerOver={(event) => hover(true)}
-      onPointerOut={(event) => hover(false)}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={hovered ? 'hotpink' : 'red'} />
-    </mesh>
+function Elf() {
+//@ts-ignore
+  const group = useRef()
+  const { nodes } = useGLTF('/scene.glb')
+//@ts-ignore
+  const material = useMemo(() => {
+    return new THREE.MeshStandardMaterial({ color: new THREE.Color('#2a2a1t'), roughness: 1, metalness: 0.9 })
+  }, [])
+    //@ts-ignore
+  console.log()
+  return (<>
+  <group 
+    //@ts-ignore
+    ref={group} dispose={null}>
+      <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 10, 0]}>
+        <mesh //@ts-ignore 
+        geometry={nodes.mesh_0.geometry} colliders material={material} receiveShadow castShadow />
+        <mesh //@ts-ignore
+        geometry={nodes.mesh_1.geometry} material={material}  receiveShadow castShadow />
+        <mesh //@ts-ignore
+        
+        geometry={nodes.mesh_2.geometry} material={material} receiveShadow castShadow />
+ 
+      </group>
+
+    </group>
+
+  </>
+
+    
   )
 }
+
 
 export default function App() {
   return (
+    <KeyboardControls
+      map={[
+        { name: "forward", keys: ["ArrowUp", "w", "W"] },
+        { name: "backward", keys: ["ArrowDown", "s", "S"] },
+        { name: "left", keys: ["ArrowLeft", "a", "A"] },
+        { name: "right", keys: ["ArrowRight", "d", "D"] },
+        { name: "jump", keys: ["Space"] },
+      ]}>
     <Canvas>
+      <Sky sunPosition={[100, 20, 100]} />
       <ambientLight intensity={0.5} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-      <pointLight position={[-10, -10, -10]} />
-      <Box position={[-1.2, 0, 0]} />
-      <Box position={[1.2, 0, 0]} />
+      <spotLight position={[10, 10, 10]} angle={0.5} penumbra={10} />
+      <pointLight position={[10, 10, 100]} />
+      
+
+
+      
+      <PointerLockControls />
+      <Elf/>
+      <Physics gravity={[0, -10, 0]}>
+          <Ground/>
+          <Player/>
+          <CuboidCollider args={[3, 12, 4]} position={[-1, 0, 0]} />
+          <Debug />
+      </Physics>
     </Canvas>
+    </KeyboardControls>
+
   )
 }
+//
