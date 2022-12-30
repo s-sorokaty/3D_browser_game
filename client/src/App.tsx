@@ -1,49 +1,13 @@
 /* eslint-disable */
 import * as React from 'react'
-import * as THREE from 'three'
-import { Suspense, useRef, useMemo } from 'react'
 import { Canvas, useFrame,  } from '@react-three/fiber'
 import { Sky, PointerLockControls, KeyboardControls } from "@react-three/drei"
-import { useGLTF, useFBO, Stage, Effects } from '@react-three/drei'
 import { CuboidCollider, RigidBody, Debug } from "@react-three/rapier"
 
 import { Physics } from "@react-three/rapier"
 import Ground from './components/Ground/Ground'
 import Player from './components/Player/Player'
-
-function Elf() {
-//@ts-ignore
-  const group = useRef()
-  const { nodes } = useGLTF('/scene.glb')
-//@ts-ignore
-  const material = useMemo(() => {
-    return new THREE.MeshStandardMaterial({ color: new THREE.Color('#2a2a1t'), roughness: 1, metalness: 0.9 })
-  }, [])
-    //@ts-ignore
-  console.log()
-  return (<>
-  <group 
-    //@ts-ignore
-    ref={group} dispose={null}>
-      <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 10, 0]}>
-        <mesh //@ts-ignore 
-        geometry={nodes.mesh_0.geometry} colliders material={material} receiveShadow castShadow />
-        <mesh //@ts-ignore
-        geometry={nodes.mesh_1.geometry} material={material}  receiveShadow castShadow />
-        <mesh //@ts-ignore
-        
-        geometry={nodes.mesh_2.geometry} material={material} receiveShadow castShadow />
- 
-      </group>
-
-    </group>
-
-  </>
-
-    
-  )
-}
-
+import GLBloader from './components/GLBloader/GLBloader'
 
 export default function App() {
   return (
@@ -60,12 +24,9 @@ export default function App() {
       <ambientLight intensity={0.5} />
       <spotLight position={[10, 10, 10]} angle={0.5} penumbra={10} />
       <pointLight position={[10, 10, 100]} />
-      
-
-
-      
       <PointerLockControls />
-      <Elf/>
+    
+      <GLBloader />
       <Physics gravity={[0, -10, 0]}>
           <Ground/>
           <Player/>
